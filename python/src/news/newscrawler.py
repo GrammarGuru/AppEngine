@@ -11,9 +11,9 @@ SCRAPERS = {
 }
 
 
-class Scraper(webapp2.RequestHandler):
+class Newscrawler(webapp2.RequestHandler):
     def get(self):
-        filename = Scraper.get_filename()
+        filename = Newscrawler.get_filename()
         gcs_file = gcs.open(filename)
         contents = gcs_file.read()
         gcs_file.close()
@@ -26,7 +26,7 @@ class Scraper(webapp2.RequestHandler):
 
     @staticmethod
     def store(data):
-        filename = Scraper.get_filename()
+        filename = Newscrawler.get_filename()
 
         write_retry_params = gcs.RetryParams(backoff_factor=1.1)
         gcs_file = gcs.open(filename, 'w', content_type='text/plain', retry_params=write_retry_params)

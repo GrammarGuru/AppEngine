@@ -1,3 +1,5 @@
+import webapp2
+import json
 from google.appengine.api import urlfetch
 import re
 from bs4 import BeautifulSoup
@@ -34,3 +36,9 @@ class Scraper(object):
     def _get_content(url):
         page = urlfetch.fetch(url, 'html.parser')
         return page.content
+
+
+class ScraperWeb(webapp2.RequestHandler):
+    def post(self):
+        response = Scraper(self.request.get('url')).get_text()
+        self.response.write(json.dumps(response))

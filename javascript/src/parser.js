@@ -1,27 +1,25 @@
 // Imports the Google Cloud client library
 const language = require('@google-cloud/language');
-
+const POS = require('../config/pos.json');
+const tags = require('../config/tags.json');
 // Instantiates a client
-const client = new language.LanguageServiceClient();
-const POS = {
-    Noun: 'N',
-    Verb: 'V',
-    DO: 'DO',
-    IO: 'IO',
-    PN: 'PN',
-    PA: 'PA'
-}
-const NOUN_MODIFIERS = new Set(['DET', 'AMOD', 'POSS', 'CONJ', 'CC', 'PREDET', 'QUANTMOD', 'NN', 'NUM', 'NUMBER', 'ABBREV', 'TMOD']);
-const VERB_MODIFIERS = new Set(['AUX', 'NEG', 'AUXPASS', 'ADVMOD']);
-const SUBJECTS = new Set(['NSUBJ', 'NSUBJPASS', 'CSUBJ', 'CSUBJPASS', 'EXPL']);
-const CLAUSES = new Set(['ADVCL', 'CONJ', 'CCOMP', 'ACL', 'RELCL']);
-const DIRECT_OBJECT = new Set(['DOBJ']);
-const INDIRECT_OBJECT = new Set(['IOBJ']);
-const PREDICATE_NOMINATIVE = new Set(['ATTR']);
-const PREDICATE_ADJECTIVE = new Set(['ACOMP']);
-const PREPOSITION = 'PREP';
-const ROOT = new Set(['ROOT']);
-const PUNCT = new Set(['P']);
+const client = new language.LanguageServiceClient({
+    keyFilename: 'config/auth.json'
+});
+
+
+const NOUN_MODIFIERS = new Set(tags.NOUN_MODIFIERS);
+const VERB_MODIFIERS = new Set(tags.VERB_MODIFIERS);
+const SUBJECTS = new Set(tags.SUBJECTS);
+const CLAUSES = new Set(tags.CLAUSES);
+const DIRECT_OBJECT = tags.DIRECT_OBJECT;
+const INDIRECT_OBJECT = tags.INDIRECT_OBJECT;
+const PREDICATE_NOMINATIVE = tags.PREDICATE_NOMINATIVE;
+const PREDICATE_ADJECTIVE = tags.PREDICATE_ADJECTIVE;
+const PREPOSITION = tags.PREPOSITION;
+const ROOT = tags.ROOT;
+const PUNCT = tags.PUNCT;
+console.log(POS, tags);
 
 class Parser {
     constructor(tokens) {
@@ -56,13 +54,13 @@ class Parser {
                 self.labelNoun(childIndex, POS.Noun);
             else if(VERB_MODIFIERS.has(childDep))
                 self.fill(childIndex, POS.Verb, true);
-            else if(DIRECT_OBJECT.has(childDep))
+            else if(childDep === DIRECT_OBJECT)
                 self.labelNoun(childIndex, POS.DO);
-            else if(INDIRECT_OBJECT.has(childDep))
+            else if(childDep === INDIRECT_OBJECT)
                 self.labelNoun(childIndex, POS.IO);
-            else if(PREDICATE_NOMINATIVE.has(childDep))
+            else if(childDep === PREDICATE_NOMINATIVE)
                 self.labelNoun(childIndex, POS.PN);
-            else if(PREDICATE_ADJECTIVE.has(childDep))
+            else if(childDep === PREDICATE_ADJECTIVE)
                 self.fill(childIndex, POS.PA, true);
             else if(childDep === PREPOSITION) {
                 self.prepCounter++;
@@ -127,7 +125,7 @@ class Parser {
     }
 }
 
-async function _parseLine(text) {
+async function parseLine(text) {
     const document = {
         content: text,
         type: 'PLAIN_TEXT'
@@ -139,24 +137,4 @@ async function _parseLine(text) {
 }
 
 
-async function parseLine(req, res) {
-    try{
-        const result = await _parseLine(req.body.line);
-        res.send(result);
-    }
-    catch(err) {
-        res.status(422).send(err);
-    }
-}
-
-async function parseLines(req, res) {
-    try {
-        const result = await Promise.all(req.body.lines.map(line => _parseLine(line)));
-        res.send(result);
-    }
-    catch(err) {
-        res.status(422).send(err);
-    }
-}
-
-module.exports = { parseLine, parseLines }
+module.exports = { parseLine };

@@ -1,1 +1,4 @@
 runtime: nodejs8
+
+env_variables:
+    GOOGLE_APPLICATION_CREDENTIALS: "./config/auth.json"

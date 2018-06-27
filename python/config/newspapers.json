@@ -1,0 +1,12 @@
+{
+  "topics": ["world", "sports", "life", "money", "tech", "travel"],
+  "usatoday": {
+    "rss": "http://rssfeeds.usatoday.com/usatoday-NewsTopStories",
+    "world": "http://rssfeeds.usatoday.com/usatodaycomworld-topstories&x=1",
+    "sports": "http://rssfeeds.usatoday.com/usatodaycomsports-topstories&x=1",
+    "life": "http://rssfeeds.usatoday.com/usatoday-lifetopstories&x=1",
+    "money": "http://rssfeeds.usatoday.com/usatodaycommoney-topstories&x=1",
+    "tech": "http://rssfeeds.usatoday.com/usatoday-techtopstories&x=1",
+    "travel": "http://rssfeeds.usatoday.com/usatodaycomtravel-topstories&x=1"
+  }
+}

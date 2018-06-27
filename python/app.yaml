@@ -1,0 +1,15 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+service: functions
+
+handlers:
+- url: /.*
+  script: main.app
+
+libraries:
+- name: ssl
+  version: latest
+
+env_variables:
+    GOOGLE_APPLICATION_CREDENTIALS: "./config/auth.json"

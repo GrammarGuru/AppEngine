@@ -1,0 +1,4 @@
+cron:
+- description: "Load articles"
+  url: /scrape
+  schedule: every monday 09:00

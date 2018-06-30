@@ -1,3 +1,4 @@
+# coding=utf-8
 import webapp2
 import json
 from google.appengine.api import urlfetch
@@ -11,22 +12,47 @@ class Scraper(object):
         self.soup = BeautifulSoup(self.content, 'html.parser')
 
     def get_article(self):
-        return self.soup.find('html')
+        article = self.soup.find('article')
+        if article is None:
+            return self.soup.find('html')
+        return article
 
     def get_text(self):
         paragraphs = self.get_paragraphs(self.get_article())
-        return [line.strip() for p in paragraphs for line in self._split_paragraph(self._clean_text(p.get_text()))]
+        result = []
+        for p in paragraphs:
+            p = self._clean_text(p.get_text())
+            if self.is_good_paragraph(p):
+                result.append(p)
+        return result
 
     @staticmethod
     def get_paragraphs(soup):
         return soup.findAll('p')
 
     @staticmethod
+    def is_good_paragraph(p):
+        lines = Scraper._split_paragraph(p)
+        if len(lines) < 2:
+            return False
+        pattern = re.compile(r"[\w\s,.?']+")
+        result = pattern.match(p)
+        if result is None or result.span()[1] != len(p):
+            return False
+        return True
+
+    @staticmethod
     def _clean_text(text):
-        return text.replace(u'\u00A0', " ").\
-            replace(u'\u2019', "'").\
-            replace(u'\u2018', "'").\
-            encode('ascii', 'ignore')
+        text = text.replace(u'\u00A0', " ")
+        text = text.replace(u'\u2019', "'")
+        text = text.replace(u'\u2018', "'")
+        text = text.encode('ascii', 'ignore')
+
+        loc_pattern = re.compile(r'([A-Z]+[ ,.]?)+[ ,]+')
+        result = re.match(loc_pattern, text)
+        if result is not None:
+            text = text[result.span()[1]:]
+        return text.strip()
 
     @staticmethod
     def _split_paragraph(p):

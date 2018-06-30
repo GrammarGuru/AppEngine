@@ -4,5 +4,8 @@
   "DO": "DO",
   "IO": "IO",
   "PN": "PN",
-  "PA": "PA"
+  "PA": "PA",
+  "APPOS": "APPOS",
+  "PARTICIPLE": "PARTICIPLE",
+  "Infinitive": "INF"
 }

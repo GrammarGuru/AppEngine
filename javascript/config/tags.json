@@ -1,13 +1,33 @@
 {
-  "NOUN_MODIFIERS": ["DET", "AMOD", "POSS", "CONJ", "CC", "PREDET", "QUANTMOD", "NN", "NUM", "NUMBER", "ABBREV", "TMOD"],
-  "VERB_MODIFIERS": ["AUX", "NEG", "AUXPASS", "ADVMOD"],
+  "NOUN_MODIFIERS": [
+    "DET",
+    "AMOD",
+    "POSS",
+    "CONJ",
+    "CC",
+    "PREDET",
+    "QUANTMOD",
+    "NN",
+    "NUM",
+    "NUMBER",
+    "ABBREV",
+    "TMOD",
+    "PRECONJ",
+    "PREDET",
+    "TITLE",
+    "SUFFIX"
+  ],
+  "VERB_MODIFIERS": ["AUX", "NEG", "AUXPASS", "ADVMOD", "PRT"],
   "SUBJECTS": ["NSUBJ", "NSUBJPASS", "CSUBJ", "CSUBJPASS", "EXPL"],
-  "CLAUSES": ["ADVCL", "CONJ", "CCOMP", "ACL", "RELCL"],
+  "CLAUSES": ["ADVCL", "CONJ", "CCOMP", "ACL", "RELCL", "PCOMP", "RCMOD"],
+  "APPOS": "APPOS",
   "DIRECT_OBJECT": "DOBJ",
   "INDIRECT_OBJECT": "IOBJ",
   "PREDICATE_NOMINATIVE": "ATTR",
   "PREDICATE_ADJECTIVE": "ACOMP",
   "ROOT": "ROOT",
   "PREPOSITION": "PREP",
-  "PUNCT": "P"
+  "PUNCT": "P",
+  "PARTICIPLE": "VMOD",
+  "INF": "XCOMP"
 }

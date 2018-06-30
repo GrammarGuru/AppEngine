@@ -4,3 +4,4 @@
 *auth.json
 *.pyc
 *.DS_Store
+lib/

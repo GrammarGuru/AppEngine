@@ -122,7 +122,6 @@ class Parser {
     }
 
     labelPrep(index) {
-        console.log(index, this.words[index]);
         this.pos[index] = this.prepCounter;
         let tails = [];
         const self = this;

@@ -22,9 +22,12 @@ async function parseLines(req, res) {
 }
 
 async function filter(req, res) {
+    let { lines } = req.body;
+    if(!Array.isArray(lines))
+        lines = [lines];
     try {
-        const result = await Promise.all(req.body.lines.map(line => Parser.isValid(line)));
-        res.send(req.body.lines.filter((line, index) => {
+        const result = await Promise.all(lines.map(line => Parser.isValid(line)));
+        res.send(lines.filter((line, index) => {
             return result[index];
         }));
     } catch (err) {

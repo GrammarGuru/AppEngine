@@ -12,7 +12,8 @@ async function parseLine(req, res) {
 
 async function parseLines(req, res) {
     try {
-        const result = await Promise.all(req.body.lines.map(line => Parser.parseLine(line)));
+        const result = (await Promise.all(req.body.lines.map(line => Parser.parseLine(line))))
+            .filter(result => result !== null);
         res.send(result);
     }
     catch(err) {
@@ -20,4 +21,15 @@ async function parseLines(req, res) {
     }
 }
 
-module.exports = { parseLine, parseLines }
+async function filter(req, res) {
+    try {
+        const result = await Promise.all(req.body.lines.map(line => Parser.isValid(line)));
+        res.send(req.body.lines.filter((line, index) => {
+            return result[index];
+        }));
+    } catch (err) {
+        res.status(422).send(err);
+    }
+}
+
+module.exports = { parseLine, parseLines, filter }

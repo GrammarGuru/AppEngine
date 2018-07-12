@@ -29,5 +29,6 @@
   "PREPOSITION": "PREP",
   "PUNCT": "P",
   "PARTICIPLE": "VMOD",
-  "INF": "XCOMP"
+  "INF": "XCOMP",
+  "UNKNOWN": "UNKNOWN"
 }

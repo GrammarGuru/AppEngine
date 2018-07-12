@@ -22,7 +22,8 @@ const {
     PUNCT,
     APPOS,
     PARTICIPLE,
-    INF
+    INF,
+    UNKNOWN
 } = tags;
 
 
@@ -34,23 +35,35 @@ class Parser {
         this.parents = new Array(tokens.length);
         this.pos = new Array(tokens.length);
         this.children = tokens.map(() => []);
+        this.roots = [];
         const self = this;
-        let roots = [];
         tokens.forEach((item, index) => {
             self.words[index] = item.text.content;
             self.tags[index] = item.partOfSpeech.tag;
             self.dep[index] = item.dependencyEdge.label;
             if(self.dep[index] === 'ROOT')
-                roots.push(index);
+                self.roots.push(index);
             self.parents[index] = self.words[item];
             self.children[item.dependencyEdge.headTokenIndex].push(index);
             self.pos[index] = null;
         });
         this.prepCounter = 0;
-        roots.forEach(root => this.label(root));
     }
 
-    label(index) {
+    isValid() {
+        const root = this.roots[0];
+        return this.tags[root] === 'VERB' &&
+            !this.dep.includes(UNKNOWN) &&
+            this.children[root].some(childIndex => {
+                return SUBJECTS.has(this.dep[childIndex])
+            });
+    }
+
+    label() {
+        this.roots.forEach(root => this._label(root));
+    }
+
+    _label(index) {
         const self = this;
         self.pos[index] = POS.Verb;
         self.children[index].forEach(childIndex => {
@@ -146,15 +159,30 @@ class Parser {
 }
 
 async function parseLine(text) {
-    const document = {
-        content: text,
-        type: 'PLAIN_TEXT'
-    }
-    const parsedText = await client.analyzeSyntax({ document });
-    const tokens = parsedText[0].tokens;
-    const { words, pos } = new Parser(tokens);
+    const parser = await initParser(text)
+    parser.label();
+    const { words, pos } = parser;
     return { words, pos };
 }
 
+async function isValid(text) {
+    const parser = await initParser(text);
+    return parser.isValid();
+}
 
-module.exports = { parseLine };
+async function initParser(text) {
+    const document = createDocument(text)
+    const parsedText = await client.analyzeSyntax({ document });
+    const tokens = parsedText[0].tokens;
+    return new Parser(tokens);
+}
+
+function createDocument(text) {
+    return {
+        content: text,
+        type: 'PLAIN_TEXT'
+    }
+}
+
+
+module.exports = { parseLine, isValid };

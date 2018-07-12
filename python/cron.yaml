@@ -1,8 +1,8 @@
 cron:
 - description: "Load articles"
-  url: /getNews
+  url: /crawlNews
   schedule: every monday 09:00
 
 - description: "Load images"
-  url: /getImages
+  url: /crawlImages
   schedule: every monday 09:00

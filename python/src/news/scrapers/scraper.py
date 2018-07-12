@@ -33,13 +33,7 @@ class Scraper(object):
     @staticmethod
     def is_good_paragraph(p):
         lines = Scraper._split_paragraph(p)
-        if len(lines) < 2:
-            return False
-        pattern = re.compile(r"[\w\s,.?']+")
-        result = pattern.match(p)
-        if result is None or result.span()[1] != len(p):
-            return False
-        return True
+        return len(lines) >= 2
 
     @staticmethod
     def _clean_text(text):

@@ -1,6 +1,7 @@
 import sys
 import webapp2
 from src.news.newscrawler import Newscrawler
+from src.news.newsstorage import NewsStore
 from src.news.scrapers.scraper import ScraperWeb
 from src.images.imagecrawler import ImageCrawler
 
@@ -18,7 +19,8 @@ class MainPage(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('/getNews', Newscrawler),
-    ('/getImages', ImageCrawler),
+    ('/getNews', NewsStore),
+    ('/crawlNews', Newscrawler),
+    ('/crawlImages', ImageCrawler),
     ('/scrape', ScraperWeb)
 ], debug=True)

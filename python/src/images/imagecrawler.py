@@ -10,10 +10,6 @@ FILE_LOC = 'images.json'
 
 class ImageCrawler(webapp2.RequestHandler):
     def get(self):
-        content = db.get(db.get_filename(FILE_LOC))
-        return self.response.write(content)
-
-    def post(self):
         data = get_images()
         result = db.store(json.dumps(data), db.get_filename(FILE_LOC))
         return self.response.write(json.dumps(result))

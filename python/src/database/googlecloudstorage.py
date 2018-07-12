@@ -19,6 +19,24 @@ def get(filename):
     return contents
 
 
-def get_filename(filename):
+def get_files(bucket):
+    stats = gcs.listbucket(bucket)
+    result = {}
+    for stat in stats:
+        pointer = result
+        path = stat.filename.split('/')
+        title = path[-1]
+        for dir in path[2:-1]:
+            if dir not in pointer:
+                pointer[dir] = {}
+            pointer = pointer[dir]
+
+        pointer[title] = True
+    return result
+
+
+def get_filename(filename=None):
     bucket_name = os.environ.get('BUCKET_NAME', app_identity.get_default_gcs_bucket_name())
-    return '/{}/{}'.format(bucket_name, filename)
+    if filename is not None:
+        return '/{}/{}'.format(bucket_name, filename)
+    return '/{}'.format(bucket_name)

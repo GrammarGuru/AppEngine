@@ -9,11 +9,11 @@ FILE_LOC = 'data.json'
 
 class Newscrawler(webapp2.RequestHandler):
     def get(self):
-        self.load_articles(store=True)
+        data = self.load_articles()
+        db.store(json.dumps(data), db.get_filename(FILE_LOC))
         return self.response.write('Success')
 
-
-    def load_articles(self, store=False):
+    def load_articles(self):
         papers = self._load()
         topics = papers['topics']
         del papers['topics']
@@ -29,8 +29,6 @@ class Newscrawler(webapp2.RequestHandler):
                         article = self.get_article(title, url)
                         if len(article['lines']) >= 5:
                             articles.append(article)
-                            if store:
-                                db.store(json.dumps(article), db.get_filename('news/{}/{}'.format(topic, article['title'])))
                     except:
                         pass
             result[topic] = articles

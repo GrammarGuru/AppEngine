@@ -19,6 +19,11 @@ def get(filename):
     return contents
 
 
+def delete_all(bucket):
+    for stat in gcs.listbucket(bucket):
+        gcs.delete(stat.filename)
+
+
 def get_files(bucket):
     stats = gcs.listbucket(bucket)
     result = {}

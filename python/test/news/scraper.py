@@ -1,8 +1,8 @@
 import os
 os.chdir('../..')
-from src.news.scrapers.usatoday import USAToday
+from src.news.scrapers.scraper import Scraper
 
-article = USAToday('https://www.usatoday.com/story/sports/nba/2018/06/23/lebron-james-free-agent-chris-paul-kawhi-leonard-paul-george/728017002/')
+article = Scraper('https://www.timeforkids.com/k1/meet-lady-liberty/')
 lines = article.get_text()
 for line in lines:
-    print line, '\n'
+    print line

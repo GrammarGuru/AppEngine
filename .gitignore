@@ -5,3 +5,5 @@
 *.pyc
 *.DS_Store
 lib/
+*.cmd
+*.sh

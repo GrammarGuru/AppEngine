@@ -1,3 +1,4 @@
 feedparser
 beautifulsoup4
 GoogleAppEngineCloudStorageClient
+newsapi-python

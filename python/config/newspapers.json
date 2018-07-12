@@ -1,12 +1,28 @@
 {
   "topics": ["world", "sports", "life", "money", "tech", "travel"],
-  "usatoday": {
-    "rss": "http://rssfeeds.usatoday.com/usatoday-NewsTopStories",
-    "world": "http://rssfeeds.usatoday.com/usatodaycomworld-topstories&x=1",
-    "sports": "http://rssfeeds.usatoday.com/usatodaycomsports-topstories&x=1",
-    "life": "http://rssfeeds.usatoday.com/usatoday-lifetopstories&x=1",
-    "money": "http://rssfeeds.usatoday.com/usatodaycommoney-topstories&x=1",
-    "tech": "http://rssfeeds.usatoday.com/usatoday-techtopstories&x=1",
-    "travel": "http://rssfeeds.usatoday.com/usatodaycomtravel-topstories&x=1"
+  "bbc": {
+    "rss": "http://feeds.bbci.co.uk/news/rss.xml",
+    "world": "http://feeds.bbci.co.uk/news/world/rss.xml",
+    "life": "http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",
+    "money": "http://feeds.bbci.co.uk/news/business/rss.xml",
+    "tech": "http://feeds.bbci.co.uk/news/technology/rss.xml"
+  },
+  "nytimes": {
+    "rss": "http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+    "world": "http://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+    "sports": "http://rss.nytimes.com/services/xml/rss/nyt/Sports.xml",
+    "life": "http://rss.nytimes.com/services/xml/rss/nyt/Arts.xml",
+    "money": "http://rss.nytimes.com/services/xml/rss/nyt/Economy.xml",
+    "tech": "http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
+    "travel": "http://rss.nytimes.com/services/xml/rss/nyt/Travel.xml"
+  },
+  "latimes": {
+    "rss": "http://www.latimes.com/rss2.0.xml",
+    "world": "http://www.latimes.com/world/rss2.0.xml",
+    "sports": "http://www.latimes.com/sports/rss2.0.xml",
+    "life": "http://www.latimes.com/style/rss2.0.xml",
+    "money": "http://www.latimes.com/business/rss2.0.xml",
+    "tech": "http://www.latimes.com/business/technology/rss2.0.xml",
+    "travel": "http://www.latimes.com/travel/rss2.0.xml"
   }
 }

@@ -1,41 +1,19 @@
 import webapp2
 import json
-import os
-from google.appengine.api import urlfetch, app_identity
-import cloudstorage as gcs
-from src.news.scrapers.usatoday import USAToday
+from src.database import googlecloudstorage as db
+from src.news.scrapers.scraper import Scraper
 from src.news.feed import Feed
 
-SCRAPERS = {
-    'usatoday': USAToday
-}
+FILE_LOC = 'data.json'
 
 
 class Newscrawler(webapp2.RequestHandler):
     def get(self):
-        filename = Newscrawler.get_filename()
-        gcs_file = gcs.open(filename)
-        contents = gcs_file.read()
-        gcs_file.close()
-        self.response.write(contents)
+        self.load_articles(store=True)
+        return self.response.write('Success')
 
-    def post(self):
-        result = self.load_articles()
-        data = self.store(json.dumps(result))
-        return self.response.write(json.dumps(data))
 
-    @staticmethod
-    def store(data):
-        filename = Newscrawler.get_filename()
-
-        write_retry_params = gcs.RetryParams(backoff_factor=1.1)
-        gcs_file = gcs.open(filename, 'w', content_type='text/plain', retry_params=write_retry_params)
-        gcs_file.write(data)
-        gcs_file.close()
-
-        return 'Success: {}'.format(data)
-
-    def load_articles(self):
+    def load_articles(self, store=False):
         papers = self._load()
         topics = papers['topics']
         del papers['topics']
@@ -43,26 +21,25 @@ class Newscrawler(webapp2.RequestHandler):
         for topic in topics:
             articles = []
             for source, feeds in papers.items():
+                if topic not in feeds:
+                    continue
                 feed = Feed(feeds[topic])
-                Parser = SCRAPERS[source]
                 for title, url in feed.get_articles():
                     try:
-                        articles.append(self.get_article(title, url, Parser))
+                        article = self.get_article(title, url)
+                        if len(article['lines']) >= 5:
+                            articles.append(article)
+                            if store:
+                                db.store(json.dumps(article), db.get_filename('news/{}/{}'.format(topic, article['title'])))
                     except:
                         pass
             result[topic] = articles
         return result
 
     @staticmethod
-    def get_filename():
-        bucket_name = os.environ.get('BUCKET_NAME', app_identity.get_default_gcs_bucket_name())
-        bucket = '/' + bucket_name
-        filename = bucket + '/' + "data.json"
-        return filename
-
-    @staticmethod
-    def get_article(title, url, Parser):
-        lines = Parser(url).get_text()
+    def get_article(title, url):
+        lines = Scraper(url).get_text()
+        title = title.replace('&apos;', "'")
         return {'title': title, 'url': url, 'lines': lines}
 
     @staticmethod

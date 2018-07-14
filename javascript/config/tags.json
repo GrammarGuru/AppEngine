@@ -28,7 +28,6 @@
   "ROOT": "ROOT",
   "PREPOSITION": "PREP",
   "PUNCT": "P",
-  "PARTICIPLE": "VMOD",
-  "INF": "XCOMP",
+  "VERBALS": ["VMOD", "XCOMP"],
   "UNKNOWN": "UNKNOWN"
 }

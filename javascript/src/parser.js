@@ -12,6 +12,7 @@ const NOUN_MODIFIERS = new Set(tags.NOUN_MODIFIERS);
 const VERB_MODIFIERS = new Set(tags.VERB_MODIFIERS);
 const SUBJECTS = new Set(tags.SUBJECTS);
 const CLAUSES = new Set(tags.CLAUSES);
+const VERBALS = new Set(tags.VERBALS);
 const {
     DIRECT_OBJECT,
     INDIRECT_OBJECT,
@@ -21,8 +22,6 @@ const {
     ROOT,
     PUNCT,
     APPOS,
-    PARTICIPLE,
-    INF,
     UNKNOWN
 } = tags;
 
@@ -32,7 +31,6 @@ class Parser {
         this.words = new Array(tokens.length);
         this.tags = new Array(tokens.length);
         this.dep = new Array(tokens.length);
-        this.parents = new Array(tokens.length);
         this.pos = new Array(tokens.length);
         this.children = tokens.map(() => []);
         this.roots = [];
@@ -43,8 +41,8 @@ class Parser {
             self.dep[index] = item.dependencyEdge.label;
             if(self.dep[index] === 'ROOT')
                 self.roots.push(index);
-            self.parents[index] = self.words[item];
-            self.children[item.dependencyEdge.headTokenIndex].push(index);
+            if(item.dependencyEdge.headTokenIndex !== index)
+                self.children[item.dependencyEdge.headTokenIndex].push(index);
             self.pos[index] = null;
         });
         this.prepCounter = 0;
@@ -64,53 +62,104 @@ class Parser {
     }
 
     _label(index) {
-        const self = this;
-        self.pos[index] = POS.Verb;
-        self.children[index].forEach(childIndex => {
-            const childDep = self.dep[childIndex];
+        this.pos[index] = POS.Verb;
+        for(const childIndex of this.children[index]) {
+            const childDep = this.dep[childIndex];
             if(SUBJECTS.has(childDep))
-                self.labelNoun(childIndex, POS.Noun);
+                this.labelNoun(childIndex, POS.Noun);
             else if(VERB_MODIFIERS.has(childDep))
-                self.fill(childIndex, POS.Verb);
+                this.fill(childIndex, POS.Verb);
             else if(childDep === DIRECT_OBJECT)
-                self.labelNoun(childIndex, POS.DO);
+                this.labelNoun(childIndex, POS.DO);
             else if(childDep === INDIRECT_OBJECT)
-                self.labelNoun(childIndex, POS.IO);
+                this.labelNoun(childIndex, POS.IO);
             else if(childDep === PREDICATE_NOMINATIVE)
-                self.labelNoun(childIndex, POS.PN);
+                this.labelNoun(childIndex, POS.PN);
             else if(childDep === PREDICATE_ADJECTIVE)
-                self.fill(childIndex, POS.PA);
-            else if(childDep === PARTICIPLE)
-                self.fill(childIndex, POS.PARTICIPLE);
-            else if(self.isInfinitive(childIndex)) {
-                self.fill(childIndex, POS.Infinitive);
-            }
+                this.fill(childIndex, POS.PA);
+            else if(VERBALS.has(childDep))
+                this.labelVerbal(childIndex);
             else if(childDep === PREPOSITION) {
-                self.prepCounter++;
-                self.labelPrep(childIndex);
+                this.prepCounter++;
+                this.labelPrep(childIndex);
             }
-            else if(self.isClause(childIndex))
-                self.label(childIndex);
-        })
+            else if(this.isClause(childIndex))
+                this._label(childIndex);
+        }
     }
 
     labelNoun(index, tag) {
         this.pos[index] = tag;
-        const self = this;
-        this.children[index].forEach(childIndex => {
-            const childDep = self.dep[childIndex];
+        for(const childIndex of this.children[index]) {
+            const childDep = this.dep[childIndex];
             if(NOUN_MODIFIERS.has(childDep))
-                self.fill(childIndex, tag);
+                this.fill(childIndex, tag);
             else if(childDep === APPOS)
-                self.labelNoun(childIndex, POS.APPOS);
+                this.labelNoun(childIndex, POS.APPOS);
+            else if(VERBALS.has(childDep))
+                this.labelVerbal(childIndex);
             else if(childDep === PREPOSITION) {
-                self.prepCounter++;
-                self.labelPrep(childIndex);
+                this.prepCounter++;
+                this.labelPrep(childIndex);
             }
-            else if(self.isClause(childIndex))
-                self.label(childIndex);
+            else if(this.isClause(childIndex))
+                this.label(childIndex);
+        }
+    }
 
+    labelPrep(index) {
+        this.pos[index] = this.prepCounter;
+        let tails = [];
+        for(const childIndex of this.children[index]) {
+            const childDep = self.dep[childIndex];
+            if(childDep === PREPOSITION)
+                tails.push(childIndex)
+            else if(CLAUSES.has(childDep))
+                this.label(childIndex);
+            else if(childDep !== PUNCT)
+                this.labelPrep(childIndex);
+        }
+        tails.forEach(tail => {
+            this.prepCounter++;
+            this.labelPrep(tail);
         });
+    }
+
+    labelVerbal(index, tag) {
+        if(!tag) {
+            if(this.isInfinitive(index))
+                tag = POS.Infinitive;
+            else
+                tag = POS.Participle;
+        }
+        this.pos[index] = tag;
+        for(const childIndex of this.children[index]) {
+            const childDep = this.dep[childIndex];
+            if(VERBALS.has(childDep))
+                this.labelVerbal(childIndex);
+            else if(childDep === PREPOSITION) {
+                this.prepCounter++;
+                this.labelPrep(childIndex);
+            }
+            else if(this.dep[childIndex] !== PUNCT)
+                this.labelVerbal(childIndex, tag);
+        }
+    }
+
+    fill(index, tag) {
+        this.pos[index] = tag;
+        let tail = undefined;
+        const { dep } = this;
+        for(const childIndex of this.children[index]) {
+            if(dep[childIndex] === PREPOSITION)
+                tail = childIndex;
+            else if(dep[childIndex] !== PUNCT)
+                this.fill(childIndex, tag);
+        }
+        if(tail !== undefined) {
+            this.prepCounter++;
+            this.labelPrep(tail);
+        }
     }
 
     isClause(index) {
@@ -118,47 +167,17 @@ class Parser {
     }
 
     isInfinitive(index) {
-        return this.tags[index] === 'VERB' && this.dep[index] === INF;
-    }
-
-    labelPrep(index) {
-        this.pos[index] = this.prepCounter;
-        let tails = [];
-        const self = this;
-        this.children[index].forEach(childIndex => {
-            const childDep = self.dep[childIndex];
-            if(childDep === PREPOSITION)
-                tails.push(childIndex)
-            else if(CLAUSES.has(childDep))
-                self.label(childIndex);
-            else if(childDep !== PUNCT)
-                this.labelPrep(childIndex);
-        })
-        tails.forEach(tail => {
-            this.prepCounter++;
-            this.labelPrep(tail);
-        });
-    }
-
-    fill(index, tag) {
-        this.pos[index] = tag;
-        let tail = undefined;
-        const { dep } = this;
-        this.children[index].forEach(childIndex => {
-            if(dep[childIndex] === PREPOSITION)
-                tail = childIndex;
-            else if(dep[childIndex] !== PUNCT)
-                this.fill(childIndex, tag);
-        })
-        if(tail !== undefined) {
-            this.prepCounter++;
-            this.labelPrep(tail);
+        for(const childIndex of this.children[index]) {
+            if (this.dep[childIndex] === 'AUX' &&
+                this.words[childIndex].toLowerCase() === 'to')
+                return true;
         }
+        return false;
     }
 }
 
 async function parseLine(text) {
-    const parser = await initParser(text)
+    const parser = await initParser(text);
     parser.label();
     const { words, pos } = parser;
     return { words, pos };

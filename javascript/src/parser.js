@@ -34,18 +34,18 @@ class Parser {
         this.pos = new Array(tokens.length);
         this.children = tokens.map(() => []);
         this.roots = [];
-        const self = this;
-        tokens.forEach((item, index) => {
-            self.words[index] = item.text.content;
-            self.tags[index] = item.partOfSpeech.tag;
-            self.dep[index] = item.dependencyEdge.label;
-            if(self.dep[index] === 'ROOT')
-                self.roots.push(index);
-            if(item.dependencyEdge.headTokenIndex !== index)
-                self.children[item.dependencyEdge.headTokenIndex].push(index);
-            self.pos[index] = null;
-        });
         this.prepCounter = 0;
+        for(let index = 0; index < tokens.length; index++) {
+            const item = tokens[index];
+            this.words[index] = item.text.content;
+            this.tags[index] = item.partOfSpeech.tag;
+            this.dep[index] = item.dependencyEdge.label;
+            if(this.dep[index] === 'ROOT')
+                this.roots.push(index);
+            if(item.dependencyEdge.headTokenIndex !== index)
+                this.children[item.dependencyEdge.headTokenIndex].push(index);
+            this.pos[index] = null;
+        }
     }
 
     isValid() {
@@ -103,7 +103,7 @@ class Parser {
                 this.labelPrep(childIndex);
             }
             else if(this.isClause(childIndex))
-                this.label(childIndex);
+                this._label(childIndex);
         }
     }
 
@@ -111,11 +111,11 @@ class Parser {
         this.pos[index] = this.prepCounter;
         let tails = [];
         for(const childIndex of this.children[index]) {
-            const childDep = self.dep[childIndex];
+            const childDep = this.dep[childIndex];
             if(childDep === PREPOSITION)
                 tails.push(childIndex)
             else if(CLAUSES.has(childDep))
-                this.label(childIndex);
+                this._label(childIndex);
             else if(childDep !== PUNCT)
                 this.labelPrep(childIndex);
         }

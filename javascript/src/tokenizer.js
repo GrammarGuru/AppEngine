@@ -1,14 +1,14 @@
-const language = require('@google-cloud/language');
-const { createDocument } = require('./utils');
-
-const client = new language.LanguageServiceClient({
-  keyFilename: 'config/auth.json'
-});
-
-async function sentTokenize(paragraph) {
-  const document = createDocument(paragraph);
-  const parsedText = await client.analyzeSyntax({ document });
-  return parsedText[0].sentences.map(sentence => sentence.text.content);
+function sentTokenize(paragraph) {
+  const roots = [];
+  for(let i = 0; i < paragraph.tokens.length; i++) {
+    const dep = paragraph.tokens[i].dependencyEdge.label;
+    if(dep === 'ROOT')
+      roots.push(i);
+  }
+  return paragraph.sentences.map((sentence, index) => ({
+    sentence: sentence.text.content,
+    root: roots[index]
+  }));
 }
 
 module.exports = {

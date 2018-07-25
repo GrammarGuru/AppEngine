@@ -28,21 +28,21 @@ const {
 
 
 class Parser {
-  constructor(tokens) {
+  constructor(tokens, root) {
     this.words = new Array(tokens.length);
     this.tags = new Array(tokens.length);
     this.dep = new Array(tokens.length);
     this.pos = new Array(tokens.length);
     this.children = tokens.map(() => []);
-    this.roots = [];
+    this.root = root;
     this.prepCounter = 0;
     for (let index = 0; index < tokens.length; index++) {
       const item = tokens[index];
       this.words[index] = item.text.content;
       this.tags[index] = item.partOfSpeech.tag;
       this.dep[index] = item.dependencyEdge.label;
-      if (this.dep[index] === 'ROOT')
-        this.roots.push(index);
+      if (this.dep[index] === 'ROOT' && root === undefined)
+        this.root = index;
       if (item.dependencyEdge.headTokenIndex !== index)
         this.children[item.dependencyEdge.headTokenIndex].push(index);
       this.pos[index] = null;
@@ -50,14 +50,14 @@ class Parser {
   }
 
   isValid() {
-    const root = this.roots[0];
+    const root = this.root;
     return this.tags[root] === 'VERB' &&
       !this.dep.includes(UNKNOWN) &&
       this.children[root].some(childIndex => SUBJECTS.has(this.dep[childIndex]));
   }
 
   label() {
-    this.roots.forEach(root => this._label(root));
+    this._label(this.root);
   }
 
   _label(index) {
@@ -195,19 +195,16 @@ async function parseLine(text) {
   return {words, pos};
 }
 
-async function isValid(text) {
-  if(text.includes('(') || text.includes(')'))
-    return false;
-  const parser = await initParser(text);
-  return parser.isValid();
-}
-
 async function initParser(text) {
-  const document = createDocument(text)
-  const parsedText = await client.analyzeSyntax({document});
-  const tokens = parsedText[0].tokens;
+  const parsedText = await label(text);
+  const tokens = parsedText.tokens;
   return new Parser(tokens);
 }
 
+async function label(text) {
+  const document = createDocument(text)
+  return (await client.analyzeSyntax({ document }))[0];
+}
 
-module.exports = {parseLine, isValid};
+
+module.exports = { Parser, parseLine, label};

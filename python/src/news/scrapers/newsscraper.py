@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 
 
-class Scraper(object):
+class NewsScraper(object):
     def __init__(self, url):
         self.content = self._get_content(url)
         self.soup = BeautifulSoup(self.content, 'html.parser')
@@ -32,7 +32,7 @@ class Scraper(object):
 
     @staticmethod
     def is_good_paragraph(p):
-        lines = Scraper._split_paragraph(p)
+        lines = NewsScraper._split_paragraph(p)
         return len(lines) >= 2
 
     @staticmethod
@@ -60,5 +60,5 @@ class Scraper(object):
 
 class ScraperWeb(webapp2.RequestHandler):
     def post(self):
-        response = Scraper(self.request.get('url')).get_text()
+        response = NewsScraper(self.request.get('url')).get_text()
         self.response.write(json.dumps(response))

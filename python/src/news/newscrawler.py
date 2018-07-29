@@ -1,7 +1,7 @@
 import webapp2
 import json
 from src.database import googlecloudstorage as db
-from src.news.scrapers.scraper import Scraper
+from src.news.scrapers.newsscraper import NewsScraper
 from src.news.feed import Feed
 
 FILE_LOC = 'data.json'
@@ -36,7 +36,7 @@ class Newscrawler(webapp2.RequestHandler):
 
     @staticmethod
     def get_article(title, url):
-        lines = Scraper(url).get_text()
+        lines = NewsScraper(url).get_text()
         title = title.replace('&apos;', "'")
         return {'title': title, 'url': url, 'lines': lines}
 

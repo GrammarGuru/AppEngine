@@ -20,7 +20,7 @@ def create_worksheet(title, lines, sources, remove_commas, pos):
     :param pos List of Strings representing parts of speech to be labelled
     """
     lines = format_lines(lines)
-    settings = {'Remove Commas': remove_commas, 'POS': set(pos)}
+    settings = {'Remove Commas': remove_commas, 'POS': pos}
     sheet = Worksheet(lines, title, sources, key=False, settings=settings).render()
     key = Worksheet(lines, title=title, sources=sources, key=True, settings=settings).render()
     return sheet, key
@@ -50,7 +50,7 @@ class Worksheet:
         else:
             self.title = title
         self.font = 'Times New Roman'
-        self.styles = load_styles('config/pos.json', settings['POS'])
+        self.styles = settings['POS']
         self.lines = lines
         self.sources = sources
         self.settings = settings
@@ -96,7 +96,8 @@ class Worksheet:
         subtitle = line.add_run('Label: ')
         self.format_run(subtitle, font_size=self.font_size, bold=True)
         comma = False
-        for style in self.styles.values():
+        values = sorted(self.styles.values(), key=lambda x: x['id'])
+        for style in values:
             if style['active']:
                 if comma:
                     self.format_run(line.add_run(", "), font_size=self.font_size)
@@ -157,9 +158,9 @@ class Worksheet:
 
     def format_run(self, run, color=None, font_size=13, bold=False):
         if type(color) == POS:
-            key = list(self.styles.keys())[color.value]
-            if self.styles[key]['active']:
-                run.font.color.rgb = load_color(self.styles[key]['rgb'])
+            rgb = self.load_color(color.value)
+            if color is not None:
+                run.font.color.rgb = rgb
         elif type(color) == int and self.styles['Preposition']['active']:  # Check if preposition needs coloring
             run.font.color.rgb = load_color(self.styles['Preposition']['rgb'])
         elif type(color) == RGBColor:
@@ -168,6 +169,12 @@ class Worksheet:
         run.font.name = self.font
         run.font.size = Pt(font_size)
         return run
+
+    def load_color(self, id):
+        style = next((x for x in self.styles.values() if x['id'] == id), None)
+        if style['active']:
+            return RGBColor(*style['rgb'])
+        return None
 
 
 def rindex(lst, val):

@@ -1,38 +1,55 @@
 const Parser = require('./parser');
+const { sentTokenize } = require('./tokenizer');
 
 async function parseLine(req, res) {
-    try{
-        const result = await Parser.parseLine(req.body.line);
-        res.send(result);
-    }
-    catch(err) {
-        res.status(422).send(err);
-    }
+  try {
+    const result = await Parser.parseLine(req.body.line);
+    return res.send(result);
+  } catch (err) {
+    res.status(500).send(err);
+  }
 }
 
 async function parseLines(req, res) {
-    try {
-        const result = (await Promise.all(req.body.lines.map(line => Parser.parseLine(line))))
-            .filter(result => result !== null);
-        res.send(result);
-    }
-    catch(err) {
-        res.status(422).send(err);
-    }
+  try {
+    let { lines } = req.body;
+    if (!Array.isArray(lines))
+      lines = [lines];
+    const result = await Promise.all(lines.map(line => Parser.parseLine(line)));
+    return res.send(result);
+  } catch (err) {
+    res.status(500).send(err);
+  }
 }
 
 async function filter(req, res) {
+  try {
     let { lines } = req.body;
-    if(!Array.isArray(lines))
-        lines = [lines];
-    try {
-        const result = await Promise.all(lines.map(line => Parser.isValid(line)));
-        res.send(lines.filter((line, index) => {
-            return result[index];
-        }));
-    } catch (err) {
-        res.status(422).send(err);
-    }
+    if(!lines)
+      return res.status(400).send('No lines');
+    if (!Array.isArray(lines))
+      lines = [lines];
+    const data = await Promise.all(lines.map(line => Parser.label(line)));
+    lines = data.map(d => _filter(d, sentTokenize(d)))
+      .filter(line => line.length > 0);
+    return res.send(lines);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
+
+function _isValid({ tokens }, { sentence, root }) {
+  if(sentence.includes('(') || sentence.includes(')'))
+    return false;
+  const parser = new Parser.Parser(tokens, root);
+  return parser.isValid();
+}
+
+function _filter(data, lines) {
+  const result = lines.map(line => _isValid(data, line));
+  return lines
+    .map(line => line.sentence)
+    .filter((_, index) => result[index]);
 }
 
 module.exports = { parseLine, parseLines, filter }

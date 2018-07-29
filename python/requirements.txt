@@ -2,3 +2,4 @@ feedparser
 beautifulsoup4
 GoogleAppEngineCloudStorageClient
 newsapi-python
+python-docx

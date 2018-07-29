@@ -10,6 +10,8 @@ handlers:
 libraries:
 - name: ssl
   version: latest
+- name: lxml
+  version: latest
 
 env_variables:
     GOOGLE_APPLICATION_CREDENTIALS: "./config/auth.json"

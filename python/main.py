@@ -1,11 +1,12 @@
 import sys
+
 import webapp2
-from src.news.newscrawler import Newscrawler
-from src.news.newsstorage import NewsStore
+
+from src.news.cron import NewsCron
 from src.news.scrapers.newsscraper import ScraperWeb
-from src.images.imagecrawler import ImageCrawler
-from src.worksheets.main import SheetMakerWeb
+from src.news.storage import NewsMetadata, NewsData
 from src.scrapers.webscraper import WebScraper
+from src.worksheet.main import SheetMakerWeb
 
 sys.path.insert(0, 'lib')
 
@@ -17,11 +18,11 @@ class MainPage(webapp2.RequestHandler):
 
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage),
-    ('/getNews', NewsStore),
-    ('/getWeb', WebScraper),
-    ('/crawlNews', Newscrawler),
-    ('/crawlImages', ImageCrawler),
-    ('/scrape', ScraperWeb),
-    ('/worksheet', SheetMakerWeb)
+    (r'/', MainPage),
+    (r'/news', NewsMetadata),
+    (r'/news/(\d+)', NewsData),
+    (r'/news/cron', NewsCron),
+    (r'/web', WebScraper),
+    (r'/scrape', ScraperWeb),
+    (r'/worksheet', SheetMakerWeb)
 ], debug=True)

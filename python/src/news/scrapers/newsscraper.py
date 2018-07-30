@@ -1,9 +1,10 @@
 # coding=utf-8
-import webapp2
 import json
-from google.appengine.api import urlfetch
 import re
+
+import webapp2
 from bs4 import BeautifulSoup
+from google.appengine.api import urlfetch
 
 
 class NewsScraper(object):
@@ -59,6 +60,6 @@ class NewsScraper(object):
 
 
 class ScraperWeb(webapp2.RequestHandler):
-    def post(self):
+    def get(self):
         response = NewsScraper(self.request.get('url')).get_text()
         self.response.write(json.dumps(response))

@@ -1,0 +1,102 @@
+{
+  "Subject": {
+    "id": 0,
+    "active": true,
+    "name": "Subject",
+    "rgb": [
+      58,
+      124,
+      165
+    ]
+  },
+  "Verb": {
+    "id": 1,
+    "active": true,
+    "name": "Verb",
+    "rgb": [
+      105,
+      143,
+      63
+    ]
+  },
+  "DO": {
+    "id": 2,
+    "active": true,
+    "name": "Direct Object",
+    "rgb": [
+      255,
+      210,
+      63
+    ]
+  },
+  "IO": {
+    "id": 3,
+    "active": true,
+    "name": "Indirect Object",
+    "rgb": [
+      211,
+      78,
+      36
+    ]
+  },
+  "PN": {
+    "id": 4,
+    "active": true,
+    "name": "Predicate Nominative",
+    "rgb": [
+      251,
+      172,
+      190
+    ]
+  },
+  "PA": {
+    "id": 5,
+    "active": true,
+    "name": "Predicate Adjective",
+    "rgb": [
+      143,
+      57,
+      133
+    ]
+  },
+  "Preposition": {
+    "id": 6,
+    "active": true,
+    "name": "(Prepositional Phrase)",
+    "rgb": [
+      0,
+      0,
+      0
+    ]
+  },
+  "Appositive": {
+    "id": 7,
+    "active": false,
+    "name": "Appositive Phrase",
+    "rgb": [
+      85,
+      85,
+      255
+    ]
+  },
+  "Participle": {
+    "id": 8,
+    "active": false,
+    "name": "Participle Phrase",
+    "rgb": [
+      85,
+      255,
+      0
+    ]
+  },
+  "Infinitive": {
+    "id": 9,
+    "active": false,
+    "name": "Infinitive Phrase",
+    "rgb": [
+      255,
+      170,
+      255
+    ]
+  }
+}

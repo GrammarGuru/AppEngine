@@ -1,14 +1,23 @@
 import json
 
+import requests
+import requests_toolbelt.adapters.appengine
+
+requests_toolbelt.adapters.appengine.monkeypatch()
+
+
 from io import BytesIO
 from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_LINE_SPACING
 from docx.shared import Pt, Inches
 from docx.shared import RGBColor
-from src.worksheets.pos import POS, POS_MAP
+from src.worksheet.pos import POS, POS_MAP
 
 
 PUNCT = {',', '.', '-', "'s", "'m", '?', "n't"}
+
+with open('config/api.json') as f:
+    URL = json.load(f)['url']
 
 
 def create_worksheet(title, lines, sources, remove_commas, pos):
@@ -16,7 +25,7 @@ def create_worksheet(title, lines, sources, remove_commas, pos):
     :param title: Title of worksheet
     :param lines: Array of sentences
     :param sources: Array of urls where lines were pulled from
-    :param remove_commas: Boolean of whether to remove commas from worksheets
+    :param remove_commas: Boolean of whether to remove commas from worksheet
     :param pos List of Strings representing parts of speech to be labelled
     """
     lines = format_lines(lines)
@@ -27,6 +36,7 @@ def create_worksheet(title, lines, sources, remove_commas, pos):
 
 
 def format_lines(lines):
+    lines = requests.post(URL + 'parseLines', {'lines': lines}).json()
     for line in lines:
         line['pos'] = [format_pos(pos) for pos in line['pos']]
     return lines

@@ -3,3 +3,6 @@ beautifulsoup4
 GoogleAppEngineCloudStorageClient
 newsapi-python
 python-docx
+enum34
+requests
+requests-toolbelt

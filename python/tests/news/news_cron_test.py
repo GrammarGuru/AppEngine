@@ -5,7 +5,6 @@ import webtest
 from google.appengine.ext import testbed, ndb
 
 import main
-from src.news.storage import Category
 
 
 class NewsCronTest(unittest.TestCase):
@@ -14,6 +13,7 @@ class NewsCronTest(unittest.TestCase):
         self.testbed.activate()
         self.testbed.init_datastore_v3_stub()
         self.testbed.init_memcache_stub()
+        self.testbed.init_taskqueue_stub()
         ndb.get_context().clear_cache()
         self.app = webtest.TestApp(main.app)
 
@@ -25,6 +25,3 @@ class NewsCronTest(unittest.TestCase):
             topics = json.load(f)['topics']
 
         self.app.get('/news/cron')
-        categories = Category.query()
-
-        self.assertItemsEqual([c.title for c in categories], topics)

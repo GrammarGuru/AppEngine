@@ -20,6 +20,7 @@ class NewsApiTest(unittest.TestCase):
         self.testbed.activate()
         self.testbed.init_datastore_v3_stub()
         self.testbed.init_memcache_stub()
+        self.testbed.init_urlfetch_stub()
         ndb.get_context().clear_cache()
         key = Category.create_category(CATEGORY_TITLE, ARTICLES)
         self.article_id = key.get().articles[0]['id']

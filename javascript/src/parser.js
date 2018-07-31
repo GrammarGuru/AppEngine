@@ -1,7 +1,6 @@
 const language = require('@google-cloud/language');
 const POS = require('../config/pos.json');
 const tags = require('../config/tags.json');
-const { createDocument } = require('./utils');
 // Instantiates a client
 const client = new language.LanguageServiceClient({
   keyFilename: 'config/auth.json'
@@ -204,6 +203,13 @@ async function initParser(text) {
 async function label(text) {
   const document = createDocument(text)
   return (await client.analyzeSyntax({ document }))[0];
+}
+
+function createDocument(text) {
+  return {
+    content: text,
+    type: 'PLAIN_TEXT'
+  }
 }
 
 

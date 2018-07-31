@@ -36,7 +36,7 @@ def create_worksheet(title, lines, sources, remove_commas, pos):
 
 
 def format_lines(lines):
-    lines = requests.post(URL + 'parseLines', {'lines': lines}).json()
+    lines = requests.get(URL + 'labels', params={'line': lines}).json()
     for line in lines:
         line['pos'] = [format_pos(pos) for pos in line['pos']]
     return lines

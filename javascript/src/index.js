@@ -1,22 +1,16 @@
 const Parser = require('./parser');
 const { sentTokenize } = require('./tokenizer');
 
-async function parseLine(req, res) {
+async function parse(req, res) {
   try {
-    const result = await Parser.parseLine(req.body.line);
-    return res.send(result);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-}
-
-async function parseLines(req, res) {
-  try {
-    let { lines } = req.body;
-    if (!Array.isArray(lines))
-      lines = [lines];
-    const result = await Promise.all(lines.map(line => Parser.parseLine(line)));
-    return res.send(result);
+    let { line } = req.query;
+    let result;
+    if (Array.isArray(line)) {
+      result = await Promise.all(line.map(l => Parser.parseLine(l)));
+    } else {
+      result = await Parser.parseLine(line);
+    }
+    res.send(result);
   } catch (err) {
     res.status(500).send(err);
   }
@@ -24,7 +18,7 @@ async function parseLines(req, res) {
 
 async function filter(req, res) {
   try {
-    let { lines } = req.body;
+    let { lines } = req.query;
     if(!lines)
       return res.status(400).send('No lines');
     if (!Array.isArray(lines))
@@ -52,4 +46,4 @@ function _filter(data, lines) {
     .filter((_, index) => result[index]);
 }
 
-module.exports = { parseLine, parseLines, filter }
+module.exports = { parse, filter }

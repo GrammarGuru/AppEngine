@@ -1,9 +1,19 @@
 import json
+import webapp2
 
 from src.news.feed import Feed
 from src.news.scrapers.newsscraper import NewsScraper
+from src.news.storage import Category
 
 FILE_LOC = 'data.json'
+
+
+class NewsCrawler(webapp2.RequestHandler):
+    def post(self):
+        data = load_articles()
+        for title, articles in data.items():
+            Category.create_category(title, articles)
+        self.response.write('Success')
 
 
 def load_articles(size=12):

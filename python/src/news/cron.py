@@ -1,12 +1,17 @@
 import webapp2
 
-from src.news.crawler import load_articles
-from src.news.storage import Category
+from google.appengine.api import taskqueue
 
 
 class NewsCron(webapp2.RequestHandler):
     def get(self):
-        data = load_articles()
-        for title, articles in data.items():
-            Category.create_category(title, articles)
-        self.response.write('Success')
+        queue = taskqueue.Queue(name='default')
+        task = taskqueue.Task(
+            url='/newscrawler',
+            target='worker')
+
+        rpc = queue.add_async(task)
+        task = rpc.get_result()
+
+        return self.response.write(
+            'Task {} enqueued, ETA {}.'.format(task.name, task.eta))

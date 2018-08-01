@@ -16,6 +16,7 @@ LINES = [
 ]
 REMOVE_COMMAS = True
 SOURCES = []
+COLOR = [1, 2, 3]
 with open('tests/worksheet/pos.json') as f:
     POS = json.load(f)
 
@@ -41,7 +42,19 @@ class WorksheetTest(unittest.TestCase):
             'lines': LINES,
             'sources': SOURCES,
             'removeCommas': REMOVE_COMMAS,
-            'pos': POS
+            'nounColor': COLOR,
+            'verbColor': COLOR,
+        }).normal_body
+
+        self.assertEquals(len(response.split(b', key: ')), 2)
+
+    def testApiWithoutSources(self):
+        response = self.app.post_json('/worksheet', {
+            'title': TITLE,
+            'lines': LINES,
+            'removeCommas': REMOVE_COMMAS,
+            'nounColor': COLOR,
+            'verbColor': COLOR
         }).normal_body
 
         self.assertEquals(len(response.split(b', key: ')), 2)

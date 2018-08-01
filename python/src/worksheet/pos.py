@@ -15,13 +15,13 @@ class POS(Enum):
 
 
 POS_MAP = {
-    'N': POS.Noun,
-    'V': POS.Verb,
-    'DO': POS.DirectObject,
-    'IO': POS.IndirectObject,
-    'PN': POS.PredicateNominative,
-    'PA': POS.PredicateAdjective,
-    'APPOS': POS.Appositive,
-    'PARTICIPLE': POS.Participle,
-    'INF': POS.Infinitive
+    'N': POS.Noun.value,
+    'V': POS.Verb.value,
+    'DO': POS.DirectObject.value,
+    'IO': POS.IndirectObject.value,
+    'PN': POS.PredicateNominative.value,
+    'PA': POS.PredicateAdjective.value,
+    'APPOS': POS.Appositive.value,
+    'PARTICIPLE': POS.Participle.value,
+    'INF': POS.Infinitive.value
 }

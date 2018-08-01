@@ -1,18 +1,16 @@
 import json
+from io import BytesIO
 
 import requests
 import requests_toolbelt.adapters.appengine
-
-requests_toolbelt.adapters.appengine.monkeypatch()
-
-
-from io import BytesIO
 from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_LINE_SPACING
 from docx.shared import Pt, Inches
 from docx.shared import RGBColor
+
 from src.worksheet.pos import POS, POS_MAP
 
+requests_toolbelt.adapters.appengine.monkeypatch()
 
 PUNCT = {',', '.', '-', "'s", "'m", '?', "n't"}
 
@@ -37,6 +35,8 @@ def create_worksheet(title, lines, sources, remove_commas, pos):
 
 def format_lines(lines):
     lines = requests.get(URL + 'labels', params={'line': lines}).json()
+    if type(lines) != list:
+        lines = [lines]
     for line in lines:
         line['pos'] = [format_pos(pos) for pos in line['pos']]
     return lines
@@ -47,7 +47,7 @@ def format_pos(pos):
     if pos.isdigit():
         return int(pos)
     if pos != 'None':
-        return POS_MAP[pos]
+        return POS(POS_MAP[pos])
     return None
 
 
@@ -108,7 +108,6 @@ class Worksheet:
         comma = False
         values = sorted(self.styles.values(), key=lambda x: x['id'])
         for style in values:
-            if style['active']:
                 if comma:
                     self.format_run(line.add_run(", "), font_size=self.font_size)
                 else:
@@ -136,7 +135,7 @@ class Worksheet:
             if run is not None and word not in PUNCT:
                 run = paragraph.add_run(' ')
                 self.format_run(run)
-            if type(color) == int and self.styles['Preposition']['active']:
+            if type(color) == int and 'Preposition' in self.styles:
                 if index == current_prep:
                     run = paragraph.add_run(word + ')')
                 elif index > current_prep:
@@ -171,7 +170,7 @@ class Worksheet:
             rgb = self.load_color(color.value)
             if color is not None:
                 run.font.color.rgb = rgb
-        elif type(color) == int and self.styles['Preposition']['active']:  # Check if preposition needs coloring
+        elif type(color) == int and 'Preposition' in self.styles:  # Check if preposition needs coloring
             run.font.color.rgb = load_color(self.styles['Preposition']['rgb'])
         elif type(color) == RGBColor:
             run.font.color.rgb = color
@@ -180,9 +179,9 @@ class Worksheet:
         run.font.size = Pt(font_size)
         return run
 
-    def load_color(self, id):
-        style = next((x for x in self.styles.values() if x['id'] == id), None)
-        if style['active']:
+    def load_color(self, color_id):
+        style = next((x for x in self.styles.values() if x['id'] == color_id), None)
+        if style is not None:
             return RGBColor(*style['rgb'])
         return None
 
@@ -193,11 +192,3 @@ def rindex(lst, val):
 
 def load_color(rgb):
     return RGBColor(*rgb)
-
-
-def load_styles(loc, pos):
-    with open(loc) as f:
-        styles = json.load(f)
-        for name, style in styles.items():
-            style['active'] = name in pos
-        return styles

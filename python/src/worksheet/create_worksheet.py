@@ -7,7 +7,6 @@ from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_LINE_SPACING
 from docx.shared import Pt, Inches
 from docx.shared import RGBColor
-
 from src.worksheet.pos import POS, POS_MAP
 
 requests_toolbelt.adapters.appengine.monkeypatch()
@@ -130,7 +129,7 @@ class Worksheet:
         else:
             pos = [None] * len(line['pos'])
         for index, (word, color) in enumerate(zip(line['words'], pos)):
-            if word == ',' and self.settings['Remove Commas']:
+            if word == ',' and self.settings['Remove Commas'] and not self.key:
                 continue
             if run is not None and word not in PUNCT:
                 run = paragraph.add_run(' ')

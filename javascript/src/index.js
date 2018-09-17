@@ -3,12 +3,12 @@ const { sentTokenize } = require('./tokenizer');
 
 async function parse(req, res) {
   try {
-    let { line } = req.query;
+    let { lines } = req.body;
     let result;
-    if (Array.isArray(line)) {
-      result = await Promise.all(line.map(l => Parser.parseLine(l)));
+    if (Array.isArray(lines)) {
+      result = await Promise.all(lines.map(l => Parser.parseLine(l)));
     } else {
-      result = await Parser.parseLine(line);
+      result = await Parser.parseLine(lines);
     }
     res.send(result);
   } catch (err) {
@@ -18,10 +18,10 @@ async function parse(req, res) {
 
 async function filter(req, res) {
   try {
-    let { lines } = req.query;
+    let { lines } = req.body;
     if(!lines)
       return res.status(400).send('No lines');
-    if (!Array.isArray(lines))
+    if (lines.constructor !== Array)
       lines = [lines];
     const data = await Promise.all(lines.map(line => Parser.label(line)));
     lines = data.map(d => _filter(d, sentTokenize(d)))

@@ -15,12 +15,26 @@
     "PRECONJ",
     "PREDET",
     "TITLE",
-    "SUFFIX"
+    "SUFFIX",
+    "PS"
   ],
-  "VERB_MODIFIERS": ["AUX", "NEG", "AUXPASS", "ADVMOD", "PRT"],
+  "VERB_MODIFIERS": [
+    "AUX",
+    "NEG",
+    "AUXPASS",
+    "PRT"
+  ],
   "SUBJECTS": ["NSUBJ", "NSUBJPASS", "CSUBJ", "CSUBJPASS", "EXPL"],
   "EXPLICATIVE": "EXPL",
-  "CLAUSES": ["ADVCL", "CONJ", "CCOMP", "ACL", "RELCL", "RCMOD"],
+  "CLAUSES": [
+    "ADVCL",
+    "CONJ",
+    "CCOMP",
+    "ACL",
+    "RELCL",
+    "RCMOD",
+    "PARATAXIS"
+  ],
   "APPOS": "APPOS",
   "DIRECT_OBJECT": "DOBJ",
   "INDIRECT_OBJECT": "IOBJ",

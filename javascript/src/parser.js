@@ -70,7 +70,7 @@ class Parser {
         else
           this.labelNoun(childIndex, POS.Noun);
       }
-      else if (VERB_MODIFIERS.has(childDep))
+      else if (this.isAdverbialModifier(childIndex) || VERB_MODIFIERS.has(childDep))
         this.fill(childIndex, POS.Verb);
       else if (childDep === DIRECT_OBJECT)
         this.labelNoun(childIndex, POS.DO);
@@ -116,16 +116,16 @@ class Parser {
     for (const childIndex of this.children[index]) {
       const childDep = this.dep[childIndex];
       if (childDep === PREPOSITION)
-        tails.push(childIndex)
+        tails.push(childIndex);
       else if (CLAUSES.has(childDep))
         this._label(childIndex);
       else if (childDep !== PUNCT)
         this.labelPrep(childIndex);
     }
-    tails.forEach(tail => {
+    for (const tail of tails) {
       this.prepCounter++;
       this.labelPrep(tail);
-    });
+    }
   }
 
   labelVerbal(index, tag) {
@@ -185,6 +185,10 @@ class Parser {
     }
     return false;
   }
+
+  isAdverbialModifier(index) {
+    return this.dep[index] === 'ADVMOD' && this.children[index].length === 0;
+  }
 }
 
 async function parseLine(text) {
@@ -201,7 +205,7 @@ async function initParser(text) {
 }
 
 async function label(text) {
-  const document = createDocument(text)
+  const document = createDocument(text);
   return (await client.analyzeSyntax({ document }))[0];
 }
 
